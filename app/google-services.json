@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "616807604117",
+    "firebase_url": "https://electronic-delegate-7c0b4.firebaseio.com",
+    "project_id": "electronic-delegate-7c0b4",
+    "storage_bucket": "electronic-delegate-7c0b4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:616807604117:android:3b810fd26b4afc24",
+        "android_client_info": {
+          "package_name": "muhammed.awad.electronicdelegate"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "616807604117-chknejec9r6jj89nd0jrgabg3numepif.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "muhammed.awad.electronicdelegate",
+            "certificate_hash": "23d4a38124968feb2c2089fe3280a75d57b24b95"
+          }
+        },
+        {
+          "client_id": "616807604117-46graesp1n487bdardqqn13pn8v7ci1p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDrll4toaSJ8uS8GQ71FuAx7qBW6j0mejw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "616807604117-46graesp1n487bdardqqn13pn8v7ci1p.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
