@@ -1,6 +1,5 @@
 package muhammed.awad.electronicdelegate;
 
-import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -10,14 +9,10 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
-
-import muhammed.awad.electronicdelegate.Fragments.SignInFragment;
-import muhammed.awad.electronicdelegate.Fragments.SignUpFragment;
+import muhammed.awad.electronicdelegate.Fragments.PharmaceuticalFragment;
+import muhammed.awad.electronicdelegate.Fragments.RequestsFragment;
 
 public class MainActivity extends AppCompatActivity
 {
@@ -38,8 +33,8 @@ public class MainActivity extends AppCompatActivity
         {
             private final Fragment[] mFragments = new Fragment[]
                     {
-                            new SignInFragment(),
-                            new SignUpFragment()
+                            new RequestsFragment(),
+                            new PharmaceuticalFragment()
                     };
             private final String[] mFragmentNames = new String[]
                     {

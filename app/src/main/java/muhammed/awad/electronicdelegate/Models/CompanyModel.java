@@ -4,25 +4,44 @@ import java.util.HashMap;
 
 public class CompanyModel
 {
-    private String title,building,street,district,governorate;
+    private String fullname,email,mobile,building,street,district,governorate,title;
 
     public CompanyModel() {
     }
 
-    public CompanyModel(String title, String building, String street, String district, String governorate) {
-        this.title = title;
+    public CompanyModel(String fullname, String email, String mobile, String building, String street, String district, String governorate, String title) {
+        this.fullname = fullname;
+        this.email = email;
+        this.mobile = mobile;
         this.building = building;
         this.street = street;
         this.district = district;
         this.governorate = governorate;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getFullname() {
+        return fullname;
+    }
+
+    public void setFullname(String fullname) {
+        this.fullname = fullname;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getMobile() {
+        return mobile;
+    }
+
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
     }
 
     public String getBuilding() {
@@ -55,5 +74,13 @@ public class CompanyModel
 
     public void setGovernorate(String governorate) {
         this.governorate = governorate;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 }

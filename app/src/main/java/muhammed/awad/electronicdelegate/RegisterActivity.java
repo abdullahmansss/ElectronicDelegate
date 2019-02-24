@@ -4,19 +4,13 @@ import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
-import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
-import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -30,7 +24,6 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.chaos.view.PinView;
@@ -42,8 +35,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.database.DatabaseReference;
@@ -54,12 +45,9 @@ import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import muhammed.awad.electronicdelegate.Fragments.SignInFragment;
-import muhammed.awad.electronicdelegate.Fragments.SignUpFragment;
 import muhammed.awad.electronicdelegate.Models.CompanyModel;
 
 public class RegisterActivity extends AppCompatActivity
@@ -68,8 +56,8 @@ public class RegisterActivity extends AppCompatActivity
 
     Button get_started,sign_in;
 
-    EditText mobilenumber,company_title,building,street,district,governorate;
-    Button send_code,verify_btn,cancel,select_images_btn,complete_btn;
+    EditText firstname,lastname,email,mobilenumber,company_title,building,street,district,governorate;
+    Button verify_btn,cancel,select_images_btn,complete_btn;
     RecyclerView images_recyclerview;
     PinView pinView;
 
@@ -84,7 +72,7 @@ public class RegisterActivity extends AppCompatActivity
     StorageReference storageReference;
 
     PhoneAuthProvider.OnVerificationStateChangedCallbacks callbacks;
-    String codeSent,mobile;
+    String codeSent,mobile,first,last,all,email_Address,title,b,s,d,g;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -111,68 +99,9 @@ public class RegisterActivity extends AppCompatActivity
             {
                 OnVerificationStateChanged();
 
-                showMobileNumberDialog();
+                showCompleteDialog();
             }
         });
-    }
-
-    private void showMobileNumberDialog()
-    {
-        final Dialog dialog = new Dialog(RegisterActivity.this);
-
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE); // before
-        dialog.setContentView(R.layout.mobile_number_dialog);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.getWindow().getAttributes();
-        dialog.setCancelable(false);
-
-        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-        lp.copyFrom(dialog.getWindow().getAttributes());
-        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
-        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-
-        mobilenumber = dialog.findViewById(R.id.mobile_field);
-
-        send_code = dialog.findViewById(R.id.send_code_btn);
-        cancel = dialog.findViewById(R.id.cancel_btn);
-
-        send_code.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                mobile = mobilenumber.getText().toString();
-
-                if (TextUtils.isEmpty(mobile) || mobile.length() < 11 )
-                {
-                    Toast.makeText(getApplicationContext(), "please enter a valid mobile number", Toast.LENGTH_SHORT).show();
-                    mobilenumber.requestFocus();
-                    return;
-                }
-
-                progressDialog = new ProgressDialog(RegisterActivity.this);
-                progressDialog.setTitle("Verification Code");
-                progressDialog.setMessage("Please Wait Until Sending Code ...");
-                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                progressDialog.show();
-                progressDialog.setCancelable(false);
-
-                startPhoneNumberVerification(mobile);
-                dialog.dismiss();
-            }
-        });
-
-        cancel.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                dialog.dismiss();
-            }
-        });
-
-        dialog.show();
-        dialog.getWindow().setAttributes(lp);
     }
 
     private void showVerificationDialog()
@@ -211,7 +140,7 @@ public class RegisterActivity extends AppCompatActivity
 
                 progressDialog = new ProgressDialog(RegisterActivity.this);
                 progressDialog.setTitle("Verification Code");
-                progressDialog.setMessage("Please Wait Until Verify Your Number ...");
+                progressDialog.setMessage("Please Wait Until Verify Your Number and Creating Account ...");
                 progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
                 progressDialog.show();
                 progressDialog.setCancelable(false);
@@ -239,7 +168,7 @@ public class RegisterActivity extends AppCompatActivity
         final Dialog dialog = new Dialog(RegisterActivity.this);
 
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE); // before
-        dialog.setContentView(R.layout.complete_profile_dialog);
+        dialog.setContentView(R.layout.create_account_dialog);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.getWindow().getAttributes();
         dialog.setCancelable(false);
@@ -249,14 +178,18 @@ public class RegisterActivity extends AppCompatActivity
         lp.width = WindowManager.LayoutParams.MATCH_PARENT;
         lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
 
-        company_title = dialog.findViewById(R.id.company_title_field);
+        firstname = dialog.findViewById(R.id.first_name_field);
+        lastname = dialog.findViewById(R.id.last_name_field);
+        email = dialog.findViewById(R.id.company_email_field);
+        mobilenumber = dialog.findViewById(R.id.mobile_field);
         building = dialog.findViewById(R.id.building_field);
         street = dialog.findViewById(R.id.street_field);
         district = dialog.findViewById(R.id.district_field);
         governorate = dialog.findViewById(R.id.governorate_field);
+        company_title = dialog.findViewById(R.id.company_title_field);
 
         select_images_btn = dialog.findViewById(R.id.select_images_btn);
-        complete_btn = dialog.findViewById(R.id.complete_btn);
+        complete_btn = dialog.findViewById(R.id.send_code_btn);
         cancel = dialog.findViewById(R.id.cancel_btn);
 
         images_recyclerview = dialog.findViewById(R.id.images_recyclerview);
@@ -286,11 +219,40 @@ public class RegisterActivity extends AppCompatActivity
             @Override
             public void onClick(View v)
             {
-                String title = company_title.getText().toString();
-                String b = building.getText().toString();
-                String s = street.getText().toString();
-                String d = district.getText().toString();
-                String g = governorate.getText().toString();
+                first = firstname.getText().toString();
+                last = lastname.getText().toString();
+                all = first + " " + last;
+                email_Address = email.getText().toString();
+                mobile = mobilenumber.getText().toString();
+                title = company_title.getText().toString();
+                b = building.getText().toString();
+                s = street.getText().toString();
+                d = district.getText().toString();
+                g = governorate.getText().toString();
+
+                if (TextUtils.isEmpty(first))
+                {
+                    Toast.makeText(getApplicationContext(), "please enter your first name", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (TextUtils.isEmpty(last))
+                {
+                    Toast.makeText(getApplicationContext(), "please enter your last name", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (TextUtils.isEmpty(email_Address))
+                {
+                    Toast.makeText(getApplicationContext(), "please enter your email address", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (TextUtils.isEmpty(mobile))
+                {
+                    Toast.makeText(getApplicationContext(), "please enter your mobile number", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
                 if (TextUtils.isEmpty(title))
                 {
@@ -329,13 +291,14 @@ public class RegisterActivity extends AppCompatActivity
                 }
 
                 progressDialog = new ProgressDialog(RegisterActivity.this);
-                progressDialog.setTitle("Upload Images");
-                progressDialog.setMessage("Please Wait Until Uploading Images ...");
+                progressDialog.setTitle("Verification Code");
+                progressDialog.setMessage("Please Wait Until Sending Code ...");
                 progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
                 progressDialog.show();
                 progressDialog.setCancelable(false);
 
-                uploadImages(title, b, s, d, g);
+                startPhoneNumberVerification(mobile);
+
                 dialog.dismiss();
             }
         });
@@ -383,12 +346,13 @@ public class RegisterActivity extends AppCompatActivity
 
             @TargetApi(Build.VERSION_CODES.LOLLIPOP)
             @Override
-            public void onCodeSent(String s, PhoneAuthProvider.ForceResendingToken forceResendingToken) {
+            public void onCodeSent(String s, PhoneAuthProvider.ForceResendingToken forceResendingToken)
+            {
                 super.onCodeSent(s, forceResendingToken);
                 progressDialog.dismiss();
                 Toast.makeText(getApplicationContext(), "code sent to : " + mobile, Toast.LENGTH_SHORT).show();
-                showVerificationDialog();
                 codeSent = s;
+                showVerificationDialog();
             }
         };
     }
@@ -410,9 +374,12 @@ public class RegisterActivity extends AppCompatActivity
                     {
                         if (task.isSuccessful())
                         {
-                            progressDialog.dismiss();
-                            //Toast.makeText(getApplicationContext(), "Done !!!", Toast.LENGTH_SHORT).show();
-                            showCompleteDialog();
+                            uploadImages();
+                            CompanyModel companyModel = new CompanyModel(all,email_Address,mobile,b,s,d,g,title);
+                            databaseReference.child("AllUsers").child("Companies").child(getUID()).setValue(companyModel);
+
+                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                            startActivity(intent);
                         } else
                             {
                                 progressDialog.dismiss();
@@ -434,7 +401,6 @@ public class RegisterActivity extends AppCompatActivity
             {
                 if (data.getClipData() != null)
                 {
-                    //Toast.makeText(getApplicationContext(), "Selected Multiple Images", Toast.LENGTH_SHORT).show();
                     int total_images_selected = data.getClipData().getItemCount();
 
                     for (int i = 0 ; i < total_images_selected ; i ++)
@@ -442,20 +408,9 @@ public class RegisterActivity extends AppCompatActivity
                         Uri image_uri = data.getClipData().getItemAt(i).getUri();
                         fileDone.add(image_uri);
                         uploadListAdapter.notifyDataSetChanged();
-
-                        StorageReference mstorageReference = storageReference.child("Images").child(image_uri.getLastPathSegment());
-
-                        mstorageReference.putFile(image_uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task)
-                            {
-
-                            }
-                        });
                     }
                 } else if (data.getData() != null)
                 {
-                    //Toast.makeText(getApplicationContext(), "Selected One Image", Toast.LENGTH_SHORT).show();
                     Uri image_uri = data.getData();
                     fileDone.add(image_uri);
                     uploadListAdapter.notifyDataSetChanged();
@@ -516,21 +471,25 @@ public class RegisterActivity extends AppCompatActivity
         }
     }
 
-    public void uploadImages(final String title, final String building, final String street, final String district, final String governorate)
+    public void uploadImages()
     {
         UploadTask uploadTask;
 
-        final HashMap<String, String> name = new HashMap<>();
+        final StorageReference ref = storageReference.child("images");
+
+        Uri image_url;
+
+        Task<Uri> urlTask;
 
         for (int i = 0 ; i < fileDone.size() ; i ++)
         {
-            Uri image_url = fileDone.get(i);
+            image_url = fileDone.get(i);
 
-            final StorageReference ref = storageReference.child("images").child(image_url.getLastPathSegment());
+            ref.child(image_url.getLastPathSegment());
 
             uploadTask = ref.putFile(image_url);
 
-            Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+            urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
                 @Override
                 public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
                     if (!task.isSuccessful())
@@ -541,29 +500,12 @@ public class RegisterActivity extends AppCompatActivity
                     // Continue with the task to get the download URL
                     return ref.getDownloadUrl();
                 }
-            }).addOnSuccessListener(new OnSuccessListener<Uri>() {
+            }).addOnSuccessListener(new OnSuccessListener<Uri>()
+            {
                 @Override
                 public void onSuccess(Uri uri)
                 {
-                    CompanyModel companyModel = new CompanyModel(title, building, street, district, governorate);
-                    databaseReference.child("AllUsers").child("Companies").child(getUID()).setValue(companyModel);
 
-                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                    startActivity(intent);
-
-                }
-            }).addOnCompleteListener(new OnCompleteListener<Uri>()
-            {
-                @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-                @Override
-                public void onComplete(@NonNull Task<Uri> task)
-                {
-                    Uri downloadUri = task.getResult();
-
-                    String selectedimageurl = downloadUri.toString();
-
-                    name.put(selectedimageurl, selectedimageurl);
-                    //Toast.makeText(getContext(), "successfully", Toast.LENGTH_SHORT).show();
                 }
             }).addOnFailureListener(new OnFailureListener()
             {
