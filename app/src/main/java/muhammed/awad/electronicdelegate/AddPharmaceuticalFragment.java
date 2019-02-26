@@ -1,4 +1,4 @@
-package muhammed.awad.electronicdelegate.Fragments;
+package muhammed.awad.electronicdelegate;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -8,9 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import muhammed.awad.electronicdelegate.R;
-
-public class RequestsFragment extends Fragment
+public class AddPharmaceuticalFragment extends Fragment
 {
     View view;
 
@@ -18,7 +16,7 @@ public class RequestsFragment extends Fragment
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
-        view = inflater.inflate(R.layout.requests_fragment, container, false);
+        view = inflater.inflate(R.layout.add_pharmaceutical_fragment, container, false);
 
         return view;
     }

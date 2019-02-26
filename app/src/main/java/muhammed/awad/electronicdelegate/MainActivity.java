@@ -1,69 +1,190 @@
 package muhammed.awad.electronicdelegate;
 
+import android.app.ActionBar;
+import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 import muhammed.awad.electronicdelegate.Fragments.PharmaceuticalFragment;
 import muhammed.awad.electronicdelegate.Fragments.RequestsFragment;
+import muhammed.awad.electronicdelegate.Models.CompanyModel;
 
 public class MainActivity extends AppCompatActivity
 {
-    FragmentPagerAdapter fragmentPagerAdapter;
-    ViewPager viewPager;
-    TabLayout tabLayout;
+    DrawerLayout mDrawerLayout;
+    NavigationView navigationView;
+    TextView company_title,signout;
 
+    FragmentManager fragmentManager;
+    FragmentTransaction fragmentTransaction;
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        viewPager = findViewById(R.id.viewpager);
-        tabLayout = findViewById(R.id.tabs);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp);
 
-        fragmentPagerAdapter = new FragmentPagerAdapter(getSupportFragmentManager())
+        fragmentManager = getSupportFragmentManager();
+
+        drawer();
+
+        View view = navigationView.getHeaderView(0);
+
+        company_title = view.findViewById(R.id.company_title_txt);
+        signout = findViewById(R.id.sign_out_btn);
+
+        signout.setOnClickListener(new View.OnClickListener()
         {
-            private final Fragment[] mFragments = new Fragment[]
+            @Override
+            public void onClick(View v)
+            {
+                FirebaseAuth.getInstance().signOut();
+
+                Intent intent = new Intent(getApplicationContext(), Register2Activity.class);
+                startActivity(intent);
+            }
+        });
+
+        returndata();
+
+        Fragment requestsFragment = new RequestsFragment();
+        loadFragment(requestsFragment);
+        getSupportActionBar().setTitle("Requests");
+    }
+
+    public void returndata()
+    {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.keepSynced(true);
+
+        final String userId = user.getUid();
+
+        mDatabase.child("AllUsers").child("Companies").child(userId).addListenerForSingleValueEvent(
+                new ValueEventListener()
+                {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot)
                     {
-                            new RequestsFragment(),
-                            new PharmaceuticalFragment()
-                    };
-            private final String[] mFragmentNames = new String[]
+                        // Get user value
+                        CompanyModel companyModel = dataSnapshot.getValue(CompanyModel.class);
+
+                        company_title.setText(companyModel.getTitle());
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError)
                     {
-                            "REQUESTS",
-                            "PHARMACEUTICAL",
-                    };
+                        Toast.makeText(getApplicationContext(), "can\'t fetch data", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
 
-            @Override
-            public Fragment getItem(int position)
-            {
-                return mFragments[position];
-            }
+    public void drawer()
+    {
+        mDrawerLayout = findViewById(R.id.drawer_layout);
 
-            @Override
-            public int getCount()
-            {
-                return mFragments.length;
-            }
+        navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener()
+                {
+                    @Override
+                    public boolean onNavigationItemSelected(MenuItem menuItem)
+                    {
+                        switch (menuItem.getItemId())
+                        {
+                            case R.id.nav_add_pharmaceutical :
+                                Fragment addPharmaceuticalFragment = new AddPharmaceuticalFragment();
+                                loadFragment(addPharmaceuticalFragment);
+                                getSupportActionBar().setTitle("Add Pharmaceutical");
+                                menuItem.setChecked(true);
+                                mDrawerLayout.closeDrawers();
+                                return true;
+                            case R.id.nav_edit_pharmaceutical :
+                                Fragment pharmaceuticalFragment = new PharmaceuticalFragment();
+                                loadFragment(pharmaceuticalFragment);
+                                getSupportActionBar().setTitle("Edit Pharmaceutical");
+                                menuItem.setChecked(true);
+                                mDrawerLayout.closeDrawers();
+                                return true;
+                            case R.id.nav_feeds :
+                                Fragment newsFragment = new NewsFragment();
+                                loadFragment(newsFragment);
+                                getSupportActionBar().setTitle("News Feed");
+                                menuItem.setChecked(true);
+                                mDrawerLayout.closeDrawers();
+                                return true;
+                            case R.id.nav_requests :
+                                Fragment requestsFragment = new RequestsFragment();
+                                loadFragment(requestsFragment);
+                                getSupportActionBar().setTitle("Requests");
+                                menuItem.setChecked(true);
+                                mDrawerLayout.closeDrawers();
+                                return true;
+                        }
+                        return true;
+                    }
+                });
+    }
 
-            @Nullable
-            @Override
-            public CharSequence getPageTitle(int position)
-            {
-                return mFragmentNames[position];
-            }
-        };
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch (item.getItemId())
+        {
+            case android.R.id.home:
+                mDrawerLayout.openDrawer(GravityCompat.START);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
-        viewPager.setAdapter(fragmentPagerAdapter);
-        tabLayout.setupWithViewPager(viewPager);
+    public void loadFragment(Fragment fragment)
+    {
+        fragmentTransaction = fragmentManager.beginTransaction();
+
+        fragmentTransaction.replace(R.id.content_frame, fragment);
+        fragmentTransaction.addToBackStack(null);
+
+        getFragmentManager().popBackStack();
+        // Commit the transaction
+        fragmentTransaction.commit();
     }
 
     private long exitTime = 0;

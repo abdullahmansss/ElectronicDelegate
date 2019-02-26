@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="governorate">
+        <item>Select governorate</item>
+        <item>Cairo</item>
+        <item>Giza</item>
+    </string-array>
+
+    <string-array name="district">
+        <item>Select district</item>
+        <item>Nasr City</item>
+        <item>New Cairo</item>
+    </string-array>
+
+</resources>

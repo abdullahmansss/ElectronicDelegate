@@ -35,7 +35,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Verify Your Mobile Number"
+                    android:text="Sign In To Your Account"
                     android:textColor="@android:color/black"
                     android:textStyle="bold"
                     android:textSize="18sp"
@@ -44,38 +44,25 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Enter verification code"
+                    android:text="Enter Mobile number"
                     android:textSize="16sp"
                     android:layout_marginBottom="10dp"
                     />
 
-                <LinearLayout
+                <EditText
+                    android:id="@+id/mobile_field"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center"
-                    >
-
-                    <com.chaos.view.PinView
-                        android:id="@+id/code_field"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/PinWidget.PinView"
-                        android:textSize="16sp"
-                        android:cursorVisible="false"
-                        android:hint="000000"
-                        app:itemCount="6"
-                        app:itemHeight="40dp"
-                        app:itemRadius="10dp"
-                        app:itemSpacing="2dp"
-                        app:lineColor="@color/colorAccent"
-                        app:itemWidth="40dp"
-                        app:lineWidth="2dp"
-                        app:viewType="rectangle"
-                        android:inputType="number"
-                        />
-
-                </LinearLayout>
+                    android:background="@drawable/edit_text_background"
+                    android:hint="Mobile Number"
+                    android:inputType="phone"
+                    android:textSize="16sp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:paddingTop="13dp"
+                    android:paddingBottom="13dp"
+                    android:layout_marginTop="10dp"
+                    />
 
             </LinearLayout>
 
@@ -130,7 +117,7 @@
                     >
 
                     <Button
-                        android:id="@+id/verify_btn"
+                        android:id="@+id/sign_in_btn"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="ok"

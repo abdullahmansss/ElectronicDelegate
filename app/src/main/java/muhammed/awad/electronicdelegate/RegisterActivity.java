@@ -26,6 +26,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.balysv.materialripple.MaterialRippleLayout;
 import com.chaos.view.PinView;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -54,7 +55,7 @@ public class RegisterActivity extends AppCompatActivity
 {
     public static final int RESULT_LOAD_IMAGE = 1;
 
-    Button get_started,sign_in;
+    MaterialRippleLayout company_card,pharmacy_card;
 
     EditText firstname,lastname,email,mobilenumber,company_title,building,street,district,governorate;
     Button verify_btn,cancel,select_images_btn,complete_btn;
@@ -85,14 +86,14 @@ public class RegisterActivity extends AppCompatActivity
         databaseReference = firebaseDatabase.getReference();
         storageReference = FirebaseStorage.getInstance().getReference();
 
-        get_started = findViewById(R.id.getstarted_btn);
-        sign_in = findViewById(R.id.signin_btn);
+        company_card = findViewById(R.id.company_sign_up_card);
+        pharmacy_card = findViewById(R.id.pharmacy_sign_up_card);
 
         fileDone = new ArrayList<>();
 
         uploadListAdapter = new UploadListAdapter(fileDone);
 
-        get_started.setOnClickListener(new View.OnClickListener()
+        company_card.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
