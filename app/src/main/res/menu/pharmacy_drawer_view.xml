@@ -10,9 +10,9 @@
             />
 
         <item
-            android:id="@+id/nav_requests"
-            android:title="Requests"
-            android:icon="@drawable/ic_onlineorder"
+            android:id="@+id/nav_cart"
+            android:title="Cart"
+            android:icon="@drawable/ic_shopping_cart_black_24dp"
             />
 
         <item

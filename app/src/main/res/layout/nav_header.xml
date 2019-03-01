@@ -26,12 +26,11 @@
         android:padding="15dp"
         >
 
-        <ImageView
-            xmlns:app="http://schemas.android.com/apk/res-auto"
+        <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/edit_profile_image"
             android:layout_width="70dp"
             android:layout_height="70dp"
-            android:src="@drawable/logo22"
+            android:src="@drawable/addphoto"
             />
 
         <TextView

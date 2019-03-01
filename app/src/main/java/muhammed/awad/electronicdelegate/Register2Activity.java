@@ -24,12 +24,21 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import muhammed.awad.electronicdelegate.Models.CompanyModel;
+import muhammed.awad.electronicdelegate.PharmacyApp.PharmacyMainActivity;
 
 public class Register2Activity extends AppCompatActivity
 {
@@ -211,7 +220,7 @@ public class Register2Activity extends AppCompatActivity
             public void onVerificationFailed(FirebaseException e)
             {
                 progressDialog.dismiss();
-                Toast.makeText(getApplicationContext(), "code can\'t send to : " + mobile, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
             }
 
             @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -244,8 +253,7 @@ public class Register2Activity extends AppCompatActivity
                     {
                         if (task.isSuccessful())
                         {
-                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                            startActivity(intent);
+                            category();
                         } else
                         {
                             progressDialog.dismiss();
@@ -264,5 +272,77 @@ public class Register2Activity extends AppCompatActivity
                 TimeUnit.SECONDS,        // Unit of timeout
                 this,                // Activity (for callback binding)
                 callbacks);                 // OnVerificationStateChangedCallbacks
+    }
+
+    public void category()
+    {
+        final String id = getUID();
+        FirebaseDatabase firebaseDatabase;
+        final DatabaseReference databaseReference;
+
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        databaseReference = firebaseDatabase.getReference();
+
+        databaseReference.child("AllUsers").child("Companies").addListenerForSingleValueEvent(
+                new ValueEventListener()
+                {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot)
+                    {
+                        if (dataSnapshot.hasChild(id))
+                        {
+                            //Toast.makeText(getContext(), "doctor : " + id, Toast.LENGTH_SHORT).show();
+                            updateCompanyUI();
+                        } else
+                        {
+                            databaseReference.child("AllUsers").child("Pharmacies").addListenerForSingleValueEvent(
+                                    new ValueEventListener()
+                                    {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot)
+                                        {
+                                            if (dataSnapshot.hasChild(id))
+                                            {
+                                                //Toast.makeText(getContext(), "patient : " + id, Toast.LENGTH_SHORT).show();
+                                                updatePharmacyUI();
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError databaseError)
+                                        {
+                                            Toast.makeText(getApplicationContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                            );
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError)
+                    {
+                        Toast.makeText(getApplicationContext(), databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    public void updateCompanyUI()
+    {
+        Intent i = new Intent(getApplicationContext(), MainActivity.class);
+        startActivity(i);
+    }
+
+    public void updatePharmacyUI()
+    {
+        Intent i = new Intent(getApplicationContext(), PharmacyMainActivity.class);
+        startActivity(i);
+    }
+
+    private String getUID()
+    {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String UserID = user.getUid();
+
+        return UserID;
     }
 }

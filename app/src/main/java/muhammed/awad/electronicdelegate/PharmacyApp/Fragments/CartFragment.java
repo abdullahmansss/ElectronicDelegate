@@ -1,4 +1,4 @@
-package muhammed.awad.electronicdelegate;
+package muhammed.awad.electronicdelegate.PharmacyApp.Fragments;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -8,7 +8,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class AddPharmaceuticalFragment extends Fragment
+import muhammed.awad.electronicdelegate.R;
+
+public class CartFragment extends Fragment
 {
     View view;
 
@@ -16,7 +18,7 @@ public class AddPharmaceuticalFragment extends Fragment
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
-        view = inflater.inflate(R.layout.add_pharmaceutical_fragment, container, false);
+        view = inflater.inflate(R.layout.cart_fragment, container, false);
 
         return view;
     }

@@ -21,9 +21,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.balysv.materialripple.MaterialRippleLayout;
@@ -50,6 +53,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import muhammed.awad.electronicdelegate.Models.CompanyModel;
+import muhammed.awad.electronicdelegate.PharmacyApp.PharmacyMainActivity;
 
 public class RegisterActivity extends AppCompatActivity
 {
@@ -57,10 +61,12 @@ public class RegisterActivity extends AppCompatActivity
 
     MaterialRippleLayout company_card,pharmacy_card;
 
-    EditText firstname,lastname,email,mobilenumber,company_title,building,street,district,governorate;
+    EditText firstname,lastname,email,mobilenumber,company_title,building,street;
+    Spinner district_spinner,governorate_spinner;
     Button verify_btn,cancel,select_images_btn,complete_btn;
     RecyclerView images_recyclerview;
     PinView pinView;
+    String selected_governorate = "",selected_district = "";
 
     List<Uri> fileDone;
     UploadListAdapter uploadListAdapter;
@@ -73,7 +79,8 @@ public class RegisterActivity extends AppCompatActivity
     StorageReference storageReference;
 
     PhoneAuthProvider.OnVerificationStateChangedCallbacks callbacks;
-    String codeSent,mobile,first,last,all,email_Address,title,b,s,d,g;
+    PhoneAuthProvider.OnVerificationStateChangedCallbacks pharmacycallbacks;
+    String codeSent,mobile,first,last,all,email_Address,title,b,s;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -84,7 +91,7 @@ public class RegisterActivity extends AppCompatActivity
         auth = FirebaseAuth.getInstance();
         firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference();
-        storageReference = FirebaseStorage.getInstance().getReference();
+        storageReference = FirebaseStorage.getInstance().getReference().child("Images");
 
         company_card = findViewById(R.id.company_sign_up_card);
         pharmacy_card = findViewById(R.id.pharmacy_sign_up_card);
@@ -101,6 +108,15 @@ public class RegisterActivity extends AppCompatActivity
                 OnVerificationStateChanged();
 
                 showCompleteDialog();
+            }
+        });
+
+        pharmacy_card.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                OnPharmacyVerificationStateChanged();
+
+                showPharmacyDialog();
             }
         });
     }
@@ -185,8 +201,8 @@ public class RegisterActivity extends AppCompatActivity
         mobilenumber = dialog.findViewById(R.id.mobile_field);
         building = dialog.findViewById(R.id.building_field);
         street = dialog.findViewById(R.id.street_field);
-        district = dialog.findViewById(R.id.district_field);
-        governorate = dialog.findViewById(R.id.governorate_field);
+        district_spinner = dialog.findViewById(R.id.district_spinner);
+        governorate_spinner = dialog.findViewById(R.id.governorate_spinner);
         company_title = dialog.findViewById(R.id.company_title_field);
 
         select_images_btn = dialog.findViewById(R.id.select_images_btn);
@@ -200,6 +216,59 @@ public class RegisterActivity extends AppCompatActivity
         images_recyclerview.setLayoutManager(layoutManager);
         images_recyclerview.setHasFixedSize(true);
         images_recyclerview.setAdapter(uploadListAdapter);
+
+        ArrayAdapter<CharSequence> adapter1 = ArrayAdapter.createFromResource(getApplicationContext(),
+                R.array.governorate, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        governorate_spinner.setAdapter(adapter1);
+
+        governorate_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+            {
+                selected_governorate = String.valueOf(parent.getItemAtPosition(position));
+
+                if (selected_governorate.equals("Cairo"))
+                {
+                    ArrayAdapter<CharSequence> cairo_adapter = ArrayAdapter.createFromResource(getApplicationContext(),
+                            R.array.cairodistrict, android.R.layout.simple_spinner_item);
+                    // Specify the layout to use when the list of choices appears
+                    cairo_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    // Apply the adapter to the spinner
+                    district_spinner.setAdapter(cairo_adapter);
+                } else if (selected_governorate.equals("Giza"))
+                {
+                    ArrayAdapter<CharSequence> giza_adapter = ArrayAdapter.createFromResource(getApplicationContext(),
+                            R.array.gizadistrict, android.R.layout.simple_spinner_item);
+                    // Specify the layout to use when the list of choices appears
+                    giza_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    // Apply the adapter to the spinner
+                    district_spinner.setAdapter(giza_adapter);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent)
+            {
+
+            }
+        });
+
+        district_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+            {
+                selected_district = String.valueOf(parent.getItemAtPosition(position));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent)
+            {
+
+            }
+        });
 
         select_images_btn.setOnClickListener(new View.OnClickListener()
         {
@@ -228,8 +297,6 @@ public class RegisterActivity extends AppCompatActivity
                 title = company_title.getText().toString();
                 b = building.getText().toString();
                 s = street.getText().toString();
-                d = district.getText().toString();
-                g = governorate.getText().toString();
 
                 if (TextUtils.isEmpty(first))
                 {
@@ -273,15 +340,15 @@ public class RegisterActivity extends AppCompatActivity
                     return;
                 }
 
-                if (TextUtils.isEmpty(d))
+                if (selected_governorate.equals("Select governorate"))
                 {
-                    Toast.makeText(getApplicationContext(), "please enter district name", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "please enter governorate name", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                if (TextUtils.isEmpty(g))
+                if (selected_district.equals("Select district") || selected_district.length() == 0)
                 {
-                    Toast.makeText(getApplicationContext(), "please enter governorate name", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "please enter district name", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -299,6 +366,240 @@ public class RegisterActivity extends AppCompatActivity
                 progressDialog.setCancelable(false);
 
                 startPhoneNumberVerification(mobile);
+
+                dialog.dismiss();
+            }
+        });
+
+        cancel.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
+        dialog.getWindow().setAttributes(lp);
+    }
+
+    private void showPharmacyVerificationDialog()
+    {
+        final Dialog dialog = new Dialog(RegisterActivity.this);
+
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE); // before
+        dialog.setContentView(R.layout.pharmacy_verification_dialog);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().getAttributes();
+        dialog.setCancelable(false);
+
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        lp.copyFrom(dialog.getWindow().getAttributes());
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+
+        pinView = dialog.findViewById(R.id.code_field);
+
+        verify_btn = dialog.findViewById(R.id.verify_btn);
+        cancel = dialog.findViewById(R.id.cancel_btn);
+
+        verify_btn.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                String code = pinView.getText().toString();
+
+                if (TextUtils.isEmpty(code) || code.equals(codeSent) )
+                {
+                    Toast.makeText(getApplicationContext(), "please enter a valid verification code", Toast.LENGTH_SHORT).show();
+                    pinView.requestFocus();
+                    return;
+                }
+
+                progressDialog = new ProgressDialog(RegisterActivity.this);
+                progressDialog.setTitle("Verification Code");
+                progressDialog.setMessage("Please Wait Until Verify Your Number and Creating Account ...");
+                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                progressDialog.show();
+                progressDialog.setCancelable(false);
+
+                PharmacysignInWithPhoneAuthCredential(PharmacySignIn(code));
+                dialog.dismiss();
+            }
+        });
+
+        cancel.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
+        dialog.getWindow().setAttributes(lp);
+    }
+
+    private void showPharmacyDialog()
+    {
+        final Dialog dialog = new Dialog(RegisterActivity.this);
+
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE); // before
+        dialog.setContentView(R.layout.pharmacy_register_dialog);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().getAttributes();
+        dialog.setCancelable(false);
+
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        lp.copyFrom(dialog.getWindow().getAttributes());
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+
+        firstname = dialog.findViewById(R.id.first_name_field);
+        lastname = dialog.findViewById(R.id.last_name_field);
+        email = dialog.findViewById(R.id.company_email_field);
+        mobilenumber = dialog.findViewById(R.id.mobile_field);
+        building = dialog.findViewById(R.id.building_field);
+        street = dialog.findViewById(R.id.street_field);
+        district_spinner = dialog.findViewById(R.id.district_spinner);
+        governorate_spinner = dialog.findViewById(R.id.governorate_spinner);
+        company_title = dialog.findViewById(R.id.company_title_field);
+
+        complete_btn = dialog.findViewById(R.id.send_code_btn);
+        cancel = dialog.findViewById(R.id.cancel_btn);
+
+        ArrayAdapter<CharSequence> adapter1 = ArrayAdapter.createFromResource(getApplicationContext(),
+                R.array.governorate, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        governorate_spinner.setAdapter(adapter1);
+
+        governorate_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+            {
+                selected_governorate = String.valueOf(parent.getItemAtPosition(position));
+
+                if (selected_governorate.equals("Cairo"))
+                {
+                    ArrayAdapter<CharSequence> cairo_adapter = ArrayAdapter.createFromResource(getApplicationContext(),
+                            R.array.cairodistrict, android.R.layout.simple_spinner_item);
+                    // Specify the layout to use when the list of choices appears
+                    cairo_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    // Apply the adapter to the spinner
+                    district_spinner.setAdapter(cairo_adapter);
+                } else if (selected_governorate.equals("Giza"))
+                {
+                    ArrayAdapter<CharSequence> giza_adapter = ArrayAdapter.createFromResource(getApplicationContext(),
+                            R.array.gizadistrict, android.R.layout.simple_spinner_item);
+                    // Specify the layout to use when the list of choices appears
+                    giza_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    // Apply the adapter to the spinner
+                    district_spinner.setAdapter(giza_adapter);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent)
+            {
+
+            }
+        });
+
+        district_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+            {
+                selected_district = String.valueOf(parent.getItemAtPosition(position));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent)
+            {
+
+            }
+        });
+
+        complete_btn.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                first = firstname.getText().toString();
+                last = lastname.getText().toString();
+                all = first + " " + last;
+                email_Address = email.getText().toString();
+                mobile = mobilenumber.getText().toString();
+                title = company_title.getText().toString();
+                b = building.getText().toString();
+                s = street.getText().toString();
+
+                if (TextUtils.isEmpty(first))
+                {
+                    Toast.makeText(getApplicationContext(), "please enter your first name", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (TextUtils.isEmpty(last))
+                {
+                    Toast.makeText(getApplicationContext(), "please enter your last name", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (TextUtils.isEmpty(email_Address))
+                {
+                    Toast.makeText(getApplicationContext(), "please enter your email address", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (TextUtils.isEmpty(mobile))
+                {
+                    Toast.makeText(getApplicationContext(), "please enter your mobile number", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (TextUtils.isEmpty(title))
+                {
+                    Toast.makeText(getApplicationContext(), "please enter company title", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (TextUtils.isEmpty(b))
+                {
+                    Toast.makeText(getApplicationContext(), "please enter building number", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (TextUtils.isEmpty(s))
+                {
+                    Toast.makeText(getApplicationContext(), "please enter street name", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (selected_governorate.equals("Select governorate"))
+                {
+                    Toast.makeText(getApplicationContext(), "please enter governorate name", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (selected_district.equals("Select district") || selected_district.length() == 0)
+                {
+                    Toast.makeText(getApplicationContext(), "please enter district name", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                progressDialog = new ProgressDialog(RegisterActivity.this);
+                progressDialog.setTitle("Verification Code");
+                progressDialog.setMessage("Please Wait Until Sending Code ...");
+                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                progressDialog.show();
+                progressDialog.setCancelable(false);
+
+                startPharmacyPhoneNumberVerification(mobile);
 
                 dialog.dismiss();
             }
@@ -376,7 +677,7 @@ public class RegisterActivity extends AppCompatActivity
                         if (task.isSuccessful())
                         {
                             uploadImages();
-                            CompanyModel companyModel = new CompanyModel(all,email_Address,mobile,b,s,d,g,title);
+                            CompanyModel companyModel = new CompanyModel(all,email_Address,mobile,b,s,selected_district,selected_governorate,title);
                             databaseReference.child("AllUsers").child("Companies").child(getUID()).setValue(companyModel);
 
                             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
@@ -387,6 +688,80 @@ public class RegisterActivity extends AppCompatActivity
                                 String error_message = task.getException().getMessage();
                                 Toast.makeText(getApplicationContext(), error_message, Toast.LENGTH_SHORT).show();
                             }
+                    }
+                });
+    }
+
+    public void startPharmacyPhoneNumberVerification(String phoneNumber)
+    {
+        PhoneAuthProvider.getInstance().verifyPhoneNumber(
+                "+2" + phoneNumber,                // Phone number to verify
+                60,                              // Timeout duration
+                TimeUnit.SECONDS,        // Unit of timeout
+                this,                // Activity (for callback binding)
+                pharmacycallbacks);                 // OnVerificationStateChangedCallbacks
+    }
+
+    public void OnPharmacyVerificationStateChanged ()
+    {
+        pharmacycallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+            @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+            @Override
+            public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential)
+            {
+
+            }
+
+            @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+            @Override
+            public void onVerificationFailed(FirebaseException e)
+            {
+                progressDialog.dismiss();
+                Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+
+            @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+            @Override
+            public void onCodeSent(String s, PhoneAuthProvider.ForceResendingToken forceResendingToken)
+            {
+                super.onCodeSent(s, forceResendingToken);
+                progressDialog.dismiss();
+                Toast.makeText(getApplicationContext(), "code sent to : " + mobile, Toast.LENGTH_SHORT).show();
+                codeSent = s;
+                showPharmacyVerificationDialog();
+            }
+        };
+    }
+
+    public PhoneAuthCredential PharmacySignIn (String code)
+    {
+        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(codeSent, code);
+
+        return credential;
+    }
+
+    private void PharmacysignInWithPhoneAuthCredential(PhoneAuthCredential credential)
+    {
+        auth.signInWithCredential(credential)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>()
+                {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task)
+                    {
+                        if (task.isSuccessful())
+                        {
+                            uploadImages();
+                            CompanyModel companyModel = new CompanyModel(all,email_Address,mobile,b,s,selected_district,selected_governorate,title);
+                            databaseReference.child("AllUsers").child("Pharmacies").child(getUID()).setValue(companyModel);
+
+                            Intent intent = new Intent(getApplicationContext(), PharmacyMainActivity.class);
+                            startActivity(intent);
+                        } else
+                        {
+                            progressDialog.dismiss();
+                            String error_message = task.getException().getMessage();
+                            Toast.makeText(getApplicationContext(), error_message, Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
     }
@@ -525,12 +900,5 @@ public class RegisterActivity extends AppCompatActivity
     {
         String id = FirebaseAuth.getInstance().getCurrentUser().getUid();
         return id;
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-    @Override
-    public void onBackPressed()
-    {
-        finishAffinity();
     }
 }

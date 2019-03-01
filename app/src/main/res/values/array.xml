@@ -7,10 +7,22 @@
         <item>Giza</item>
     </string-array>
 
-    <string-array name="district">
+    <string-array name="cairodistrict">
         <item>Select district</item>
         <item>Nasr City</item>
         <item>New Cairo</item>
+        <item>Down Town</item>
+        <item>Ramsis</item>
+        <item>Abbasya</item>
+    </string-array>
+
+    <string-array name="gizadistrict">
+        <item>Select district</item>
+        <item>El Warraq</item>
+        <item>El Haram</item>
+        <item>Bolaq El Dakror</item>
+        <item>El Monuib</item>
+        <item>El Omrannya</item>
     </string-array>
 
 </resources>

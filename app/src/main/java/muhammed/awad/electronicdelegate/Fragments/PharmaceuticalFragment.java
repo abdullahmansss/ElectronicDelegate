@@ -1,8 +1,10 @@
 package muhammed.awad.electronicdelegate.Fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,20 +14,27 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.balysv.materialripple.MaterialRippleLayout;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.squareup.picasso.Picasso;
 import com.victor.loading.rotate.RotateLoading;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import muhammed.awad.electronicdelegate.Models.MedicineModel;
+import muhammed.awad.electronicdelegate.PharmaceuticalActivity;
 import muhammed.awad.electronicdelegate.R;
 
 public class PharmaceuticalFragment extends Fragment
 {
     View view;
+
+    FloatingActionButton add_new_pharmaceutical;
 
     FirebaseDatabase firebaseDatabase;
     DatabaseReference databaseReference;
@@ -35,6 +44,8 @@ public class PharmaceuticalFragment extends Fragment
     FirebaseRecyclerAdapter<MedicineModel, pharmaceuticalViewholder> firebaseRecyclerAdapter;
 
     RotateLoading rotateLoading;
+
+    public final static String EXTRA_EDIT_PHARMA = "edit_pharma";
 
     @Nullable
     @Override
@@ -52,6 +63,17 @@ public class PharmaceuticalFragment extends Fragment
 
         recyclerView = view.findViewById(R.id.doctors_recyclerview);
         rotateLoading = view.findViewById(R.id.rotateloading);
+        add_new_pharmaceutical = view.findViewById(R.id.add_new_pharmaceutical);
+
+        add_new_pharmaceutical.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                Intent intent = new Intent(getContext(), PharmaceuticalActivity.class);
+                startActivity(intent);
+            }
+        });
 
         rotateLoading.start();
 
@@ -72,6 +94,7 @@ public class PharmaceuticalFragment extends Fragment
         Query query = FirebaseDatabase.getInstance()
                 .getReference()
                 .child("pharmaceutical")
+                .child(getUID())
                 .limitToLast(50);
 
         FirebaseRecyclerOptions<MedicineModel> options =
@@ -86,7 +109,16 @@ public class PharmaceuticalFragment extends Fragment
             {
                 rotateLoading.stop();
 
-                String key = getRef(position).getKey();
+                final String key = getRef(position).getKey();
+
+                holder.details.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent= new Intent(getContext(), PharmaceuticalActivity.class);
+                        intent.putExtra(EXTRA_EDIT_PHARMA, key);
+                        startActivity(intent);
+                    }
+                });
 
                 holder.BindPlaces(model);
             }
@@ -106,8 +138,9 @@ public class PharmaceuticalFragment extends Fragment
 
     public static class pharmaceuticalViewholder extends RecyclerView.ViewHolder
     {
-        ImageView medicine_image;
-        TextView medicine_name,medicine_price,medicine_info;
+        CircleImageView medicine_image;
+        TextView medicine_name,medicine_price;
+        MaterialRippleLayout details;
 
         pharmaceuticalViewholder(View itemView)
         {
@@ -116,19 +149,18 @@ public class PharmaceuticalFragment extends Fragment
             medicine_image = itemView.findViewById(R.id.medicine_image);
             medicine_name = itemView.findViewById(R.id.medicine_name);
             medicine_price = itemView.findViewById(R.id.medicine_price);
-            medicine_info = itemView.findViewById(R.id.medicine_info);
+            details = itemView.findViewById(R.id.details_btn);
         }
 
         void BindPlaces(final MedicineModel medicineModel)
         {
             medicine_name.setText(medicineModel.getName());
-            medicine_price.setText(medicineModel.getPrice());
-            medicine_info.setText(medicineModel.getInfo());
+            medicine_price.setText("Price : " + medicineModel.getPrice());
 
             Picasso.get()
                     .load(medicineModel.getImageurl())
-                    .placeholder(R.drawable.logo22)
-                    .error(R.drawable.logo22)
+                    .placeholder(R.drawable.addphoto)
+                    .error(R.drawable.addphoto)
                     .into(medicine_image);
         }
     }
@@ -153,5 +185,12 @@ public class PharmaceuticalFragment extends Fragment
         {
             firebaseRecyclerAdapter.stopListening();
         }
+    }
+
+    public String getUID()
+    {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String userId = user.getUid();
+        return userId;
     }
 }

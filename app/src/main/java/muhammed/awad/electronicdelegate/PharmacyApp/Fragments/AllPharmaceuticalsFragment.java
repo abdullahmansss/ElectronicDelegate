@@ -1,4 +1,4 @@
-package muhammed.awad.electronicdelegate.Fragments;
+package muhammed.awad.electronicdelegate.PharmacyApp.Fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,10 +10,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.balysv.materialripple.MaterialRippleLayout;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;
@@ -25,12 +24,13 @@ import com.squareup.picasso.Picasso;
 import com.victor.loading.rotate.RotateLoading;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import muhammed.awad.electronicdelegate.Fragments.PharmaceuticalFragment;
 import muhammed.awad.electronicdelegate.Models.MedicineModel;
-import muhammed.awad.electronicdelegate.Models.OrderModel;
 import muhammed.awad.electronicdelegate.PharmaceuticalActivity;
+import muhammed.awad.electronicdelegate.PharmacyApp.AddtoCartActivity;
 import muhammed.awad.electronicdelegate.R;
 
-public class RequestsFragment extends Fragment
+public class AllPharmaceuticalsFragment extends Fragment
 {
     View view;
 
@@ -39,15 +39,17 @@ public class RequestsFragment extends Fragment
 
     RecyclerView recyclerView;
     LinearLayoutManager layoutManager;
-    FirebaseRecyclerAdapter<OrderModel, OrderViewholder> firebaseRecyclerAdapter;
+    FirebaseRecyclerAdapter<MedicineModel, AllpharmaceuticalViewholder> firebaseRecyclerAdapter;
 
     RotateLoading rotateLoading;
+
+    public static final String EXTRA_PHARMACEUTICAL_ADD_TO_CART_KEY = "add_to_cart_key";
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
-        view = inflater.inflate(R.layout.requests_fragment, container, false);
+        view = inflater.inflate(R.layout.all_pharmaceuticals_fragment, container, false);
 
         return view;
     }
@@ -58,7 +60,6 @@ public class RequestsFragment extends Fragment
 
         recyclerView = view.findViewById(R.id.doctors_recyclerview);
         rotateLoading = view.findViewById(R.id.rotateloading);
-
 
         rotateLoading.start();
 
@@ -78,36 +79,31 @@ public class RequestsFragment extends Fragment
     {
         Query query = FirebaseDatabase.getInstance()
                 .getReference()
-                .child("requests")
-                .child(getUID())
+                .child("Allpharmaceutical")
                 .limitToLast(50);
 
-        FirebaseRecyclerOptions<OrderModel> options =
-                new FirebaseRecyclerOptions.Builder<OrderModel>()
-                        .setQuery(query, OrderModel.class)
+        FirebaseRecyclerOptions<MedicineModel> options =
+                new FirebaseRecyclerOptions.Builder<MedicineModel>()
+                        .setQuery(query, MedicineModel.class)
                         .build();
 
-        firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<OrderModel, OrderViewholder>(options)
+        firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<MedicineModel, AllpharmaceuticalViewholder>(options)
         {
             @Override
-            protected void onBindViewHolder(@NonNull OrderViewholder holder, int position, @NonNull final OrderModel model)
+            protected void onBindViewHolder(@NonNull AllpharmaceuticalViewholder holder, int position, @NonNull final MedicineModel model)
             {
                 rotateLoading.stop();
 
-                String key = getRef(position).getKey();
+                final String key = getRef(position).getKey();
 
-                holder.accept.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Toast.makeText(getContext(), "Accept Clicked", Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-                holder.decline.setOnClickListener(new View.OnClickListener() {
+                holder.details.setOnClickListener(new View.OnClickListener()
+                {
                     @Override
                     public void onClick(View v)
                     {
-                        Toast.makeText(getContext(), "Decline Clicked", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(getContext(), AddtoCartActivity.class);
+                        intent.putExtra(EXTRA_PHARMACEUTICAL_ADD_TO_CART_KEY, key);
+                        startActivity(intent);
                     }
                 });
 
@@ -116,10 +112,10 @@ public class RequestsFragment extends Fragment
 
             @NonNull
             @Override
-            public OrderViewholder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
+            public AllpharmaceuticalViewholder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
             {
-                View view = LayoutInflater.from(getContext()).inflate(R.layout.order_item, parent, false);
-                return new OrderViewholder(view);
+                View view = LayoutInflater.from(getContext()).inflate(R.layout.pharmacy_pharmaceutical_item, parent, false);
+                return new AllpharmaceuticalViewholder(view);
             }
         };
 
@@ -127,39 +123,34 @@ public class RequestsFragment extends Fragment
         rotateLoading.stop();
     }
 
-    public static class OrderViewholder extends RecyclerView.ViewHolder
+    public static class AllpharmaceuticalViewholder extends RecyclerView.ViewHolder
     {
-        CircleImageView order_image;
-        TextView order_name,pharmacy_name,order_location,order_price,order_q;
-        Button accept,decline;
+        CircleImageView medicine_image;
+        TextView medicine_name,medicine_price,medicine_company;
+        MaterialRippleLayout details;
 
-        OrderViewholder(View itemView)
+        AllpharmaceuticalViewholder(View itemView)
         {
             super(itemView);
 
-            order_image = itemView.findViewById(R.id.order_image);
-            order_name = itemView.findViewById(R.id.order_name);
-            pharmacy_name = itemView.findViewById(R.id.order_pharmacy);
-            order_location = itemView.findViewById(R.id.order_location);
-            order_price = itemView.findViewById(R.id.order_price);
-            order_q = itemView.findViewById(R.id.order_q);
-            accept = itemView.findViewById(R.id.accept_btn);
-            decline = itemView.findViewById(R.id.decline_btn);
+            medicine_image = itemView.findViewById(R.id.medicine_image);
+            medicine_name = itemView.findViewById(R.id.medicine_name);
+            medicine_price = itemView.findViewById(R.id.medicine_price);
+            medicine_company = itemView.findViewById(R.id.medicine_company);
+            details = itemView.findViewById(R.id.details_btn);
         }
 
-        void BindPlaces(final OrderModel orderModel)
+        void BindPlaces(final MedicineModel medicineModel)
         {
-            pharmacy_name.setText("From : " + orderModel.getPharmacy_name());
-            order_name.setText(orderModel.getOrder_name());
-            order_location.setText(orderModel.getOrder_location());
-            order_price.setText("Total : " + orderModel.getOrder_price() + " L.E");
-            order_q.setText(orderModel.getOrder_quantity() + " Items");
+            medicine_name.setText(medicineModel.getName());
+            medicine_price.setText("Price : " + medicineModel.getPrice());
+            medicine_company.setText("From : " + medicineModel.getCompany_name());
 
             Picasso.get()
-                    .load(orderModel.getOrder_image())
+                    .load(medicineModel.getImageurl())
                     .placeholder(R.drawable.addphoto)
                     .error(R.drawable.addphoto)
-                    .into(order_image);
+                    .into(medicine_image);
         }
     }
 
@@ -183,12 +174,5 @@ public class RequestsFragment extends Fragment
         {
             firebaseRecyclerAdapter.stopListening();
         }
-    }
-
-    public String getUID()
-    {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        String userId = user.getUid();
-        return userId;
     }
 }

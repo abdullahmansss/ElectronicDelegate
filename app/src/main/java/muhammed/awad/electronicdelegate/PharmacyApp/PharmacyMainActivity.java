@@ -1,25 +1,19 @@
-package muhammed.awad.electronicdelegate;
+package muhammed.awad.electronicdelegate.PharmacyApp;
 
-import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Build;
-import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,16 +24,18 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.squareup.picasso.Picasso;
-import com.theartofdev.edmodo.cropper.CropImage;
-import com.theartofdev.edmodo.cropper.CropImageView;
 
-import de.hdodenhof.circleimageview.CircleImageView;
 import muhammed.awad.electronicdelegate.Fragments.PharmaceuticalFragment;
 import muhammed.awad.electronicdelegate.Fragments.RequestsFragment;
 import muhammed.awad.electronicdelegate.Models.CompanyModel;
+import muhammed.awad.electronicdelegate.NewsFragment;
+import muhammed.awad.electronicdelegate.PharmacyApp.Fragments.AllPharmaceuticalsFragment;
+import muhammed.awad.electronicdelegate.PharmacyApp.Fragments.CartFragment;
+import muhammed.awad.electronicdelegate.PharmacyApp.Fragments.NewsFeedFragment;
+import muhammed.awad.electronicdelegate.R;
+import muhammed.awad.electronicdelegate.Register2Activity;
 
-public class MainActivity extends AppCompatActivity
+public class PharmacyMainActivity extends AppCompatActivity
 {
     DrawerLayout mDrawerLayout;
     NavigationView navigationView;
@@ -48,12 +44,11 @@ public class MainActivity extends AppCompatActivity
     FragmentManager fragmentManager;
     FragmentTransaction fragmentTransaction;
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_pharmacy_main);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -83,9 +78,9 @@ public class MainActivity extends AppCompatActivity
 
         returndata();
 
-        Fragment requestsFragment = new RequestsFragment();
-        loadFragment(requestsFragment);
-        getSupportActionBar().setTitle("Requests");
+        Fragment allPharmaceuticalsFragment = new AllPharmaceuticalsFragment();
+        loadFragment(allPharmaceuticalsFragment);
+        getSupportActionBar().setTitle("Pharmaceuticals");
     }
 
     public void returndata()
@@ -96,7 +91,7 @@ public class MainActivity extends AppCompatActivity
 
         final String userId = user.getUid();
 
-        mDatabase.child("AllUsers").child("Companies").child(userId).addListenerForSingleValueEvent(
+        mDatabase.child("AllUsers").child("Pharmacies").child(userId).addListenerForSingleValueEvent(
                 new ValueEventListener()
                 {
                     @Override
@@ -130,23 +125,23 @@ public class MainActivity extends AppCompatActivity
                         switch (menuItem.getItemId())
                         {
                             case R.id.nav_pharmaceuticals :
-                                Fragment pharmaceuticalFragment = new PharmaceuticalFragment();
-                                loadFragment(pharmaceuticalFragment);
+                                Fragment allPharmaceuticalsFragment = new AllPharmaceuticalsFragment();
+                                loadFragment(allPharmaceuticalsFragment);
                                 getSupportActionBar().setTitle("Pharmaceuticals");
                                 menuItem.setChecked(true);
                                 mDrawerLayout.closeDrawers();
                                 return true;
-                            case R.id.nav_feeds :
-                                Fragment newsFragment = new NewsFragment();
-                                loadFragment(newsFragment);
-                                getSupportActionBar().setTitle("News Feed");
+                            case R.id.nav_cart :
+                                Fragment cartFragment = new CartFragment();
+                                loadFragment(cartFragment);
+                                getSupportActionBar().setTitle("Cart");
                                 menuItem.setChecked(true);
                                 mDrawerLayout.closeDrawers();
                                 return true;
-                            case R.id.nav_requests :
-                                Fragment requestsFragment = new RequestsFragment();
-                                loadFragment(requestsFragment);
-                                getSupportActionBar().setTitle("Requests");
+                            case R.id.nav_feeds :
+                                Fragment newsFeedFragment = new NewsFeedFragment();
+                                loadFragment(newsFeedFragment);
+                                getSupportActionBar().setTitle("News Feed");
                                 menuItem.setChecked(true);
                                 mDrawerLayout.closeDrawers();
                                 return true;

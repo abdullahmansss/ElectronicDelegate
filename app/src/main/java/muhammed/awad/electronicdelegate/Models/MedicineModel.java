@@ -2,16 +2,18 @@ package muhammed.awad.electronicdelegate.Models;
 
 public class MedicineModel
 {
-    String imageurl,info,name,price;
+    String imageurl,info,name,price,company_name,company_uid;
 
     public MedicineModel() {
     }
 
-    public MedicineModel(String imageurl, String info, String name, String price) {
+    public MedicineModel(String imageurl, String info, String name, String price, String company_name, String company_uid) {
         this.imageurl = imageurl;
         this.info = info;
         this.name = name;
         this.price = price;
+        this.company_name = company_name;
+        this.company_uid = company_uid;
     }
 
     public String getImageurl() {
@@ -44,5 +46,21 @@ public class MedicineModel
 
     public void setPrice(String price) {
         this.price = price;
+    }
+
+    public String getCompany_name() {
+        return company_name;
+    }
+
+    public void setCompany_name(String company_name) {
+        this.company_name = company_name;
+    }
+
+    public String getCompany_uid() {
+        return company_uid;
+    }
+
+    public void setCompany_uid(String company_uid) {
+        this.company_uid = company_uid;
     }
 }
