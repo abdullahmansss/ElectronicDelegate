@@ -1,25 +1,19 @@
 package muhammed.awad.electronicdelegate;
 
-import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Build;
-import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,11 +24,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.squareup.picasso.Picasso;
-import com.theartofdev.edmodo.cropper.CropImage;
-import com.theartofdev.edmodo.cropper.CropImageView;
 
-import de.hdodenhof.circleimageview.CircleImageView;
+import muhammed.awad.electronicdelegate.Fragments.NewsFragment;
 import muhammed.awad.electronicdelegate.Fragments.PharmaceuticalFragment;
 import muhammed.awad.electronicdelegate.Fragments.RequestsFragment;
 import muhammed.awad.electronicdelegate.Models.CompanyModel;
@@ -132,7 +123,7 @@ public class MainActivity extends AppCompatActivity
                             case R.id.nav_pharmaceuticals :
                                 Fragment pharmaceuticalFragment = new PharmaceuticalFragment();
                                 loadFragment(pharmaceuticalFragment);
-                                getSupportActionBar().setTitle("Pharmaceuticals");
+                                getSupportActionBar().setTitle("Drugs");
                                 menuItem.setChecked(true);
                                 mDrawerLayout.closeDrawers();
                                 return true;

@@ -17,8 +17,11 @@ import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,9 +57,13 @@ public class PharmaceuticalActivity extends AppCompatActivity
 
     CircleImageView pharmaceutical_image;
     TextView company_name_txt;
-    EditText pharmaceutical_name,pharmaceutical_price,pharmaceutical_info;
+    EditText pharmaceutical_name,pharmaceutical_price,pharmaceutical_info,customer_price;
     Button add_pharmaceutical_btn,delete_pharmaceutical_btn;
     CardView delete_card;
+
+    Spinner category_spinner,type_spinner;
+    String selected_category,selected_type;
+    int categ,typ;
 
     Uri photoPath;
     String selected_image_url,company_name,exist_image;
@@ -81,6 +88,9 @@ public class PharmaceuticalActivity extends AppCompatActivity
         pharmaceutical_image = findViewById(R.id.pharmaceutical_image);
         pharmaceutical_name = findViewById(R.id.pharmaceutical_name_field);
         pharmaceutical_price = findViewById(R.id.pharmaceutical_price_field);
+        customer_price = findViewById(R.id.customer_price_field);
+        category_spinner = findViewById(R.id.category_spinner);
+        type_spinner = findViewById(R.id.type_spinner);
         pharmaceutical_info = findViewById(R.id.pharmaceutical_info_field);
         add_pharmaceutical_btn = findViewById(R.id.add_pharmaceutical_btn);
         delete_pharmaceutical_btn = findViewById(R.id.delete_pharmaceutical_btn);
@@ -95,6 +105,50 @@ public class PharmaceuticalActivity extends AppCompatActivity
         firebaseStorage = FirebaseStorage.getInstance();
         storageReference = firebaseStorage.getReference().child("Images");
 
+        ArrayAdapter<CharSequence> adapter1 = ArrayAdapter.createFromResource(getApplicationContext(),
+                R.array.category, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        category_spinner.setAdapter(adapter1);
+
+        ArrayAdapter<CharSequence> adapter2 = ArrayAdapter.createFromResource(getApplicationContext(),
+                R.array.type, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        type_spinner.setAdapter(adapter2);
+
+        category_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+            {
+                selected_category = String.valueOf(parent.getItemAtPosition(position));
+                categ = position;
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent)
+            {
+
+            }
+        });
+
+        type_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+            {
+                selected_type = String.valueOf(parent.getItemAtPosition(position));
+                typ = position;
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent)
+            {
+
+            }
+        });
+
         if (TextUtils.isEmpty(KEY))
         {
             returndata();
@@ -107,6 +161,7 @@ public class PharmaceuticalActivity extends AppCompatActivity
                     String name = pharmaceutical_name.getText().toString();
                     String price = pharmaceutical_price.getText().toString();
                     String info = pharmaceutical_info.getText().toString();
+                    String cust_price = customer_price.getText().toString();
 
                     if (TextUtils.isEmpty(name))
                     {
@@ -116,7 +171,25 @@ public class PharmaceuticalActivity extends AppCompatActivity
 
                     if (TextUtils.isEmpty(price))
                     {
-                        Toast.makeText(getApplicationContext(), "please enter pharmaceutical price", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "please enter purchasing price", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    if (TextUtils.isEmpty(cust_price))
+                    {
+                        Toast.makeText(getApplicationContext(), "please enter selling price", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    if (selected_category.equals("Select Category"))
+                    {
+                        Toast.makeText(getApplicationContext(), "please select category", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    if (selected_type.equals("Select Type"))
+                    {
+                        Toast.makeText(getApplicationContext(), "please select type", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
@@ -139,7 +212,7 @@ public class PharmaceuticalActivity extends AppCompatActivity
                     progressDialog.show();
                     progressDialog.setCancelable(false);
 
-                    uploadImage(info,name,price + " L.E", company_name,getUID());
+                    uploadImage(info,name,price + " L.E", company_name,getUID(),cust_price + " L.E",categ,typ);
                 }
             });
         } else
@@ -164,6 +237,7 @@ public class PharmaceuticalActivity extends AppCompatActivity
                         String name = pharmaceutical_name.getText().toString();
                         String price = pharmaceutical_price.getText().toString();
                         String info = pharmaceutical_info.getText().toString();
+                        String cust_price = customer_price.getText().toString();
 
                         if (TextUtils.isEmpty(name))
                         {
@@ -173,7 +247,25 @@ public class PharmaceuticalActivity extends AppCompatActivity
 
                         if (TextUtils.isEmpty(price))
                         {
-                            Toast.makeText(getApplicationContext(), "please enter pharmaceutical price", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "please enter purchasing price", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        if (TextUtils.isEmpty(cust_price))
+                        {
+                            Toast.makeText(getApplicationContext(), "please enter selling price", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        if (selected_category.equals("Select Category"))
+                        {
+                            Toast.makeText(getApplicationContext(), "please select category", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        if (selected_type.equals("Select Type"))
+                        {
+                            Toast.makeText(getApplicationContext(), "please select type", Toast.LENGTH_SHORT).show();
                             return;
                         }
 
@@ -192,7 +284,7 @@ public class PharmaceuticalActivity extends AppCompatActivity
                             progressDialog.show();
                             progressDialog.setCancelable(false);
 
-                            updatePharmaceuticaltoDB(exist_image,info,name,price + " L.E",company_name_txt.getText().toString(),getUID());
+                            updatePharmaceuticaltoDB(exist_image,info,name,price + " L.E",company_name_txt.getText().toString(),getUID(),cust_price + " L.E", categ, typ);
                         } else
                             {
                                 progressDialog = new ProgressDialog(PharmaceuticalActivity.this);
@@ -202,7 +294,7 @@ public class PharmaceuticalActivity extends AppCompatActivity
                                 progressDialog.show();
                                 progressDialog.setCancelable(false);
 
-                                updateuploadImage(info,name,price + " L.E",company_name_txt.getText().toString(),getUID());
+                                updateuploadImage(info,name,price + " L.E",company_name_txt.getText().toString(),getUID(),cust_price + " L.E",categ,typ);
                             }
                     }
                 });
@@ -268,10 +360,19 @@ public class PharmaceuticalActivity extends AppCompatActivity
                         String[] parts = string.split(" ");
                         String pr = parts[0];
 
+                        String string2 = medicineModel.getCustomer_price();
+
+                        String[] parts2 = string2.split(" ");
+                        String pr2 = parts2[0];
+
+                        customer_price.setText(pr2);
                         pharmaceutical_price.setText(pr);
                         pharmaceutical_info.setText(medicineModel.getInfo());
                         company_name_txt.setText(medicineModel.getCompany_name());
                         exist_image = medicineModel.getImageurl();
+
+                        category_spinner.setSelection(medicineModel.getCategory());
+                        type_spinner.setSelection(medicineModel.getType());
 
                         Picasso.get()
                                 .load(medicineModel.getImageurl())
@@ -288,7 +389,7 @@ public class PharmaceuticalActivity extends AppCompatActivity
                 });
     }
 
-    private void uploadImage(final String info,final String name,final String price, final String company, final String uid)
+    private void uploadImage(final String info,final String name,final String price, final String company, final String uid, final String cust_price,final int category,final int type)
     {
         UploadTask uploadTask;
 
@@ -315,7 +416,7 @@ public class PharmaceuticalActivity extends AppCompatActivity
 
                 selected_image_url = downloadUri.toString();
 
-                AddPharmaceuticaltoDB(selected_image_url,info,name,price,company,uid);
+                AddPharmaceuticaltoDB(selected_image_url,info,name,price,company,uid,cust_price,category,type);
                 progressDialog.dismiss();
 
                 Toast.makeText(getApplicationContext(), "Added successfully", Toast.LENGTH_SHORT).show();
@@ -333,9 +434,9 @@ public class PharmaceuticalActivity extends AppCompatActivity
         });
     }
 
-    private void AddPharmaceuticaltoDB(String imageurl,String info,String name,String price,String company,String uid)
+    private void AddPharmaceuticaltoDB(String imageurl,String info,String name,String price,String company,String uid,String cust_price,int category, int type)
     {
-        MedicineModel medicineModel = new MedicineModel(imageurl,info,name,price,company,uid);
+        MedicineModel medicineModel = new MedicineModel(imageurl,info,name,price,company,uid, cust_price, category, type);
 
         String key = databaseReference.child("pharmaceutical").push().getKey();
 
@@ -343,7 +444,7 @@ public class PharmaceuticalActivity extends AppCompatActivity
         databaseReference.child("Allpharmaceutical").child(key).setValue(medicineModel);
     }
 
-    private void updateuploadImage(final String info,final String name,final String price, final String company, final String uid)
+    private void updateuploadImage(final String info,final String name,final String price, final String company, final String uid, final String cust_price,final int category,final int type)
     {
         UploadTask uploadTask;
 
@@ -370,7 +471,7 @@ public class PharmaceuticalActivity extends AppCompatActivity
 
                 selected_image_url = downloadUri.toString();
 
-                updatePharmaceuticaltoDB(selected_image_url,info,name,price,company,uid);
+                updatePharmaceuticaltoDB(selected_image_url,info,name,price,company,uid,cust_price,category,type);
                 progressDialog.dismiss();
 
                 Toast.makeText(getApplicationContext(), "Saved ..", Toast.LENGTH_SHORT).show();
@@ -388,9 +489,9 @@ public class PharmaceuticalActivity extends AppCompatActivity
         });
     }
 
-    private void updatePharmaceuticaltoDB(String imageurl,String info,String name,String price,String company,String uid)
+    private void updatePharmaceuticaltoDB(String imageurl,String info,String name,String price,String company,String uid,String cust_price,int category, int type)
     {
-        MedicineModel medicineModel = new MedicineModel(imageurl,info,name,price,company,uid);
+        MedicineModel medicineModel = new MedicineModel(imageurl,info,name,price,company,uid, cust_price, category, type);
 
         databaseReference.child("pharmaceutical").child(getUID()).child(KEY).setValue(medicineModel);
         databaseReference.child("Allpharmaceutical").child(KEY).setValue(medicineModel);

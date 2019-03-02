@@ -25,10 +25,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import muhammed.awad.electronicdelegate.Fragments.PharmaceuticalFragment;
-import muhammed.awad.electronicdelegate.Fragments.RequestsFragment;
 import muhammed.awad.electronicdelegate.Models.CompanyModel;
-import muhammed.awad.electronicdelegate.NewsFragment;
 import muhammed.awad.electronicdelegate.PharmacyApp.Fragments.AllPharmaceuticalsFragment;
 import muhammed.awad.electronicdelegate.PharmacyApp.Fragments.CartFragment;
 import muhammed.awad.electronicdelegate.PharmacyApp.Fragments.NewsFeedFragment;

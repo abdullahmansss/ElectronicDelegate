@@ -643,7 +643,7 @@ public class RegisterActivity extends AppCompatActivity
             public void onVerificationFailed(FirebaseException e)
             {
                 progressDialog.dismiss();
-                Toast.makeText(getApplicationContext(), "code can\'t send to : " + mobile, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
             }
 
             @TargetApi(Build.VERSION_CODES.LOLLIPOP)

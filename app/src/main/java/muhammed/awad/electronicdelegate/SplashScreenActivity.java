@@ -82,7 +82,6 @@ public class SplashScreenActivity extends AppCompatActivity
                     {
                         if (dataSnapshot.hasChild(id))
                         {
-                            //Toast.makeText(getContext(), "doctor : " + id, Toast.LENGTH_SHORT).show();
                             updateCompanyUI();
                         } else
                         {
@@ -94,7 +93,6 @@ public class SplashScreenActivity extends AppCompatActivity
                                         {
                                             if (dataSnapshot.hasChild(id))
                                             {
-                                                //Toast.makeText(getContext(), "patient : " + id, Toast.LENGTH_SHORT).show();
                                                 updatePharmacyUI();
                                             }
                                         }

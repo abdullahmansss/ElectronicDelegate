@@ -182,7 +182,7 @@ public class Register2Activity extends AppCompatActivity
 
                 progressDialog = new ProgressDialog(Register2Activity.this);
                 progressDialog.setTitle("Verification Code");
-                progressDialog.setMessage("Please Wait Until Verify Your Number and Creating Account ...");
+                progressDialog.setMessage("Please Wait Until Verify Your Number ...");
                 progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
                 progressDialog.show();
                 progressDialog.setCancelable(false);

@@ -47,21 +47,72 @@
         android:layout_margin="16dp"
         />
 
-    <EditText
-        android:id="@+id/pharmaceutical_price_field"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/edit_text_background"
-        android:hint="Pharmaceutical Price"
-        android:inputType="numberDecimal"
-        android:textSize="16sp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:paddingTop="13dp"
-        android:paddingBottom="13dp"
+        android:orientation="horizontal"
         android:layout_marginRight="16dp"
         android:layout_marginLeft="16dp"
-        />
+        >
+
+        <EditText
+            android:id="@+id/pharmaceutical_price_field"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/edit_text_background"
+            android:hint="Purchasing Price"
+            android:inputType="numberDecimal"
+            android:textSize="16sp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="13dp"
+            android:paddingBottom="13dp"
+            android:layout_marginRight="10dp"
+            />
+
+        <EditText
+            android:id="@+id/customer_price_field"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/edit_text_background"
+            android:hint="Selling Price"
+            android:inputType="numberDecimal"
+            android:textSize="16sp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="13dp"
+            android:paddingBottom="13dp"
+            />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        >
+
+        <Spinner
+            android:id="@+id/category_spinner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginRight="10dp"
+            />
+
+        <Spinner
+            android:id="@+id/type_spinner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            />
+
+    </LinearLayout>
 
     <EditText
         android:id="@+id/pharmaceutical_info_field"
